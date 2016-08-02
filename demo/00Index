@@ -1,0 +1,4 @@
+read_echoData               Read echograms from example data and print information using print method.
+methods_echoData            Shows how to use principal methods (print, summary, print.summary and plot) for echoData objects.
+calculate_oxycline_limits   Using echogram data (echoData object), it shows how to calculate oxycline limits using default filter configurations.
+methods_oxyclineData        Shows how to use principal methods (print, summary, print.summary and plot) for oxyclineData objects.

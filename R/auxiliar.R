@@ -1,0 +1,102 @@
+.checkFilterSettings <- function(filterSettings){
+  defaultFilterSettings <- get("defaultFilterSettings")
+
+  if(is.null(filterSettings)){
+    message("Message: \nNo filter-setting object or file detected. OXim will use default filter configuration.")
+    output <- defaultFilterSettings[tolower(defaultFilterSettings$name) == "default",]
+  }else if(is.vector(filterSettings) && is.character(filterSettings) && length(filterSettings) == 1){
+    if(!is.element(tolower(filterSettings), tolower(unique(defaultFilterSettings$name)))){
+      stop("Incorrect value for 'filterSettings'. Please define a set of filters using 'createFilterSetting' function.")
+    }
+
+    output <- defaultFilterSettings[tolower(defaultFilterSettings$name) == filterSettings,]
+  }else if(is.data.frame(filterSettings) &&
+           all(is.element(c("type", "radius", "times", "tolerance"), tolower(colnames(filterSettings))))){
+    output <- filterSettings
+  }
+
+  # Check variables of fileter settings object
+  # Chaeck name
+  if(!all(is.element(sort(unique(output$type)), c(".definerFilter", ".noiselessFilter"))))
+    stop("Problem with 'filterSettings'. There is, at least, one wrong value on 'type' column.")
+
+  # Check radius
+  if(any(abs(as.integer(output$radius) - output$radius) > 1e-8) | any(.isOdd(output$radius)) | any(output$radius < 3))
+    stop("Problem with 'filterSettings'. There is, at least, one wrong value on 'radius' column.")
+
+  # Check times
+  if(any(abs(as.integer(output$times) - output$times) > 1e-8) | any(.isOdd(output$times)) | any(output$times < 1))
+    stop("Problem with 'filterSettings'. There is, at least, one wrong value on 'times' column.")
+
+  # Check tolerance
+  if(!is.numeric(output$tolerance) | any(output$tolerance <= 0 | output$tolerance >= 1, na.rm = TRUE))
+    stop("Problem with 'filterSettings'. There is, at least, one wrong value on 'tolerance' column.")
+
+  return(output)
+}
+
+.isOdd <- function(x){
+  return(ifelse(x %% 2 != 0, FALSE, TRUE))
+}
+
+.getCoordsAxes <- function(coord, what){
+
+  if(tolower(what) == "lon"){
+    if(coord < 0){
+      sufix <- "\u00b0 W"
+    }else if(coord > 0){
+      sufix <- "\u00b0 E"
+    }else{
+      sufix <- "\u00b0"
+    }
+  }else if(tolower(what) == "lat"){
+    if(coord < 0){
+      sufix <- "\u00b0 S"
+    }else if(coord > 0){
+      sufix <- "\u00b0 N"
+    }else{
+      sufix <- "\u00b0"
+    }
+  }else{
+    stop("Incorrect value for 'what' parameter.")
+  }
+
+  output <- paste0(round(abs(coord), 3), sufix)
+
+  return(output)
+}
+
+#' Function that makes an IDW interpolation using sp and gstat tools
+#' @importFrom gstat idw
+.interpIDW <- function(myData, XYZnames = c("x", "y", "z"), myGrid = NULL, ...){
+
+  myData <- data.frame(x = myData[,XYZnames[1]],
+                       y = myData[,XYZnames[2]],
+                       z = myData[,XYZnames[3]],
+                       stringsAsFactors = FALSE)
+
+  coordinates(myData) <- ~ x + y
+
+  if(is.null(myGrid)){
+
+    xyRange <- apply(myData@coords, 2, range)
+
+    myGrid <- expand.grid(x = seq(floor(xyRange[1, 1]), ceiling(xyRange[2, 1]), 0.01),
+                          y = seq(floor(xyRange[1, 2]), ceiling(xyRange[2, 2]), 0.01),
+                          stringsAsFactors = FALSE)
+  }
+
+  coordinates(myGrid) <- ~ x + y
+  gridded(myGrid) <- TRUE
+
+  myIDW <- idw(formula = z ~ 1, locations = myData, newdata = myGrid, ...)
+
+  output <- list(myIDW = myIDW,
+                 myGrid = myGrid)
+
+  return(output)
+}
+
+.ac <- as.character
+.an <- as.numeric
+.anc <- function(...) as.numeric(as.character(...))
