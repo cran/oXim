@@ -22,11 +22,13 @@ If \code{filterSettings = NULL}, oXim will use filter configuration present on \
 data set. For extra details about image filters, see \code{\link{createFilterSetting}} help.
 }
 \examples{
+\dontrun{
 fileMode <- list(fish38_file   = system.file("extdata", "fish38.mat", package = "oXim"),
                  fluid120_file = system.file("extdata", "fluid120.mat", package = "oXim"),
                  blue38_file   = system.file("extdata", "blue38.mat", package = "oXim"))
 echoData <- readEchograms(fileMode = fileMode)
 oxyLimits <- getOxyrange(fluidMatrix = echoData)
+}
 
 }
 

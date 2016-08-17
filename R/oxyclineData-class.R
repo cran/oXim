@@ -122,7 +122,7 @@ print.summary.oxyclineData <- function(x, ...){
 #'
 #' @export
 #' @method plot oxyclineData
-plot.oxyclineData <- function(x, interpParams = list(myGrid = NULL), xlengthAxes = 5, ylengthAxes = 5, ...){
+plot.oxyclineData <- function(x, interpParams = list(myGrid = NULL), xlengthAxes = 6, ylengthAxes = 6, ...){
 
   # Combine all matrices in one data.frame
   allData <- NULL
@@ -160,10 +160,18 @@ plot.oxyclineData <- function(x, interpParams = list(myGrid = NULL), xlengthAxes
   yAxes <- range(myGrid$y)
   yAxes <- seq(from = yAxes[1], to = yAxes[2], length.out = ylengthAxes)
 
-  axis(side = 1, at = seq(from = 0, to = 1, length.out = xlengthAxes),
-       labels = sapply(xAxes, .getCoordsAxes, what = "lon"))
-  axis(side = 2, at = seq(from = 0, to = 1, length.out = ylengthAxes),
-       labels = sapply(yAxes, .getCoordsAxes, what = "lat"), las = 2)
+  if(!is.null(list(...)$cex.axis)){
+    axis(side = 1, at = seq(from = 0, to = 1, length.out = xlengthAxes),
+         labels = sapply(xAxes, .getCoordsAxes, what = "lon"), cex.axis = list(...)$cex.axis)
+    axis(side = 2, at = seq(from = 0, to = 1, length.out = ylengthAxes),
+         labels = sapply(yAxes, .getCoordsAxes, what = "lat"), las = 2, cex.axis = list(...)$cex.axis)
+  }else{
+    axis(side = 1, at = seq(from = 0, to = 1, length.out = xlengthAxes),
+         labels = sapply(xAxes, .getCoordsAxes, what = "lon"))
+    axis(side = 2, at = seq(from = 0, to = 1, length.out = ylengthAxes),
+         labels = sapply(yAxes, .getCoordsAxes, what = "lat"), las = 2)
+  }
+
   box()
 
   return(invisible())

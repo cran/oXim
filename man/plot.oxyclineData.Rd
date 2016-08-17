@@ -5,7 +5,7 @@
 \title{Plot method for oxyclineData}
 \usage{
 \method{plot}{oxyclineData}(x, interpParams = list(myGrid = NULL),
-  xlengthAxes = 5, ylengthAxes = 5, ...)
+  xlengthAxes = 6, ylengthAxes = 6, ...)
 }
 \arguments{
 \item{x}{Object of class \code{oxyclineData}}

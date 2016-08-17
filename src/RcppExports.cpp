@@ -6,14 +6,14 @@
 using namespace Rcpp;
 
 // ordfiltInC
-NumericMatrix ordfiltInC(NumericMatrix data, int x, NumericVector weightedMatrix);
+NumericMatrix ordfiltInC(NumericMatrix data, double x, NumericMatrix weightedMatrix);
 RcppExport SEXP oXim_ordfiltInC(SEXP dataSEXP, SEXP xSEXP, SEXP weightedMatrixSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< NumericMatrix >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< int >::type x(xSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type weightedMatrix(weightedMatrixSEXP);
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type weightedMatrix(weightedMatrixSEXP);
     __result = Rcpp::wrap(ordfiltInC(data, x, weightedMatrix));
     return __result;
 END_RCPP

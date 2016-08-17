@@ -76,22 +76,22 @@
     stop("Incorrect mode of data or weightedMatrix (both must be 'numeric').")
 
   # No borders
-  miniData <- ordfiltInC(data = data, x = as.integer(x), weightedMatrix = .an(weightedMatrix))
+  miniData <- ordfiltInC(data = data, x = x, weightedMatrix = weightedMatrix)
 
   return(miniData)
 }
 
 # Filter that removes (converts to NaN) isolated pixels
-.noiselessFilter <- function(data, radius, times, tolerance){
+.noiselessFilter <- function(matrixData, radius, times, tolerance){
   radius <- .an(radius)
   times <- .an(times)
   tolerance <- .an(tolerance)
 
   # Get range of values
-  rangeValues <- range(data, na.rm = TRUE)
+  rangeValues <- range(matrixData, na.rm = TRUE)
 
   # Convert NA to -999
-  data[is.na(data)] <- -999
+  matrixData[is.na(matrixData)] <- -999
 
   # Get weighted Matrix
   weightedMatrix <- diag(radius) + diag(radius)[,radius:1]
@@ -103,11 +103,13 @@
   if(constant2 - 1 < 0)
     stop("Incorrect value for tolerance.")
 
-  finalData <- data
-  for(i in 1:times)
+  finalData <- matrixData
+  for(i in 1:times){
     finalData <- .ordfilt2_C(data = finalData,
                              x = constant2,
                              weightedMatrix = weightedMatrix)
+  }
+
 
   finalData[finalData < rangeValues[1] | finalData == 0] <- NA
 
@@ -115,15 +117,15 @@
 }
 
 # Filter that takes isolated pixels and reforce its closest environment
-.definerFilter <- function(data, radius, times){
+.definerFilter <- function(matrixData, radius, times){
   radius <- .an(radius)
   times <- .an(times)
 
   # Get range of values
-  rangeValues <- range(data, na.rm = TRUE)
+  rangeValues <- range(matrixData, na.rm = TRUE)
 
   # Convert NA to 999
-  data[is.na(data)] <- 999
+  matrixData[is.na(matrixData)] <- 999
 
   # Get weighted Matrix
   weightedMatrix <- diag(radius) + diag(radius)[,radius:1]
@@ -132,11 +134,12 @@
 
   constant2 <- 1
 
-  finalData <- data
-  for(i in 1:times)
+  finalData <- matrixData
+  for(i in 1:times){
     finalData <- .ordfilt2_C(data = finalData,
                              x = constant2,
                              weightedMatrix = weightedMatrix)
+  }
 
   finalData[finalData > rangeValues[2]] <- NA
 
@@ -511,7 +514,7 @@
   return(output)
 }
 
-.echogramPlot <- function(echogram, colEchogram, ...){
+.echogramPlot <- function(echogram, colEchogram, cex.axis = 1, ...){
 
   # Define raster from echogram
   xAxis <- as.POSIXct(dimnames(echogram)[[2]])
@@ -528,7 +531,9 @@
   # Get plot of raster
   nIntervals <- 5
 
-  xlim <- range(pretty_dates(xAxis, nIntervals))
+  xVector <- seq.POSIXt(from = min(xAxis), to = max(xAxis), length.out = nIntervals)
+
+  xlim <- range(xVector)
   ylim <- range(pretty(yAxis, n = nIntervals))
 
   par(mar = c(3, 4, 2, 3), xaxs = "i", yaxs = "i")
@@ -537,11 +542,10 @@
         xlim = .an(xlim), ylim = ylim, axes = FALSE, ylab = "Depth (m)",
         useRaster = FALSE, col = colEchogram, ...)
 
-  axis(2, at = pretty(yAxis), labels = rev(abs(pretty(yAxis))), las = 2)
-  axis(1, at = .an(pretty_dates(xlim, nIntervals)),
-       labels = as.Date(pretty_dates(xlim, nIntervals)))
-  axis(1, at = .an(pretty_dates(xlim, nIntervals)),
-       labels = strftime(pretty_dates(xlim, nIntervals), format="%H:%M:%S"), line = 1, tick = FALSE)
+  axis(2, at = pretty(yAxis), labels = rev(abs(pretty(yAxis))), las = 2, cex.axis = cex.axis)
+  axis(1, at = .an(xVector), labels = as.Date(xVector), cex.axis = cex.axis)
+  axis(1, at = .an(xVector), labels = strftime(xVector, format="%H:%M:%S"), line = 1,
+       tick = FALSE, cex.axis = cex.axis)
 
   box()
 
