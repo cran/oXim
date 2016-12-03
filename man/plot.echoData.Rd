@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{\code{echoData} object provided by \code{readEchograms} function.}
 
-\item{...}{Arguments passed from \code{plot} function.}
+\item{...}{Arguments passed to \code{\link{echogramPlot}} function.}
 }
 \description{
 This function takes an \code{echoData} object and plots an interpolated map

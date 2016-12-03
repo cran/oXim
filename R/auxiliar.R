@@ -25,7 +25,7 @@
     stop("Problem with 'filterSettings'. There is, at least, one wrong value on 'radius' column.")
 
   # Check times
-  if(any(abs(as.integer(output$times) - output$times) > 1e-8) | any(.isOdd(output$times)) | any(output$times < 1))
+  if(any(abs(as.integer(output$times) - output$times) > 1e-8) | any(output$times < 1))
     stop("Problem with 'filterSettings'. There is, at least, one wrong value on 'times' column.")
 
   # Check tolerance
@@ -37,6 +37,33 @@
 
 .isOdd <- function(x){
   return(ifelse(x %% 2 != 0, FALSE, TRUE))
+}
+
+# Moving average function
+movingAverage <- function(x, n = 3, circular = TRUE, ...)
+{
+  output <- filter(x, rep(1/n, n), circular = circular, ...)
+
+  return(.an(output))
+}
+
+# Function for smoothing numeric vector
+smoothVector <- function(x, y = NULL, ...){
+
+  if(is.null(y)){
+    y <- x
+    x <- seq_along(x)
+  }
+
+  x <- .an(x)
+  y <- .an(y)
+
+  index <- !is.na(y)
+  smoothFUN <- smooth.spline(x = x[index], y = y[index], ...)
+
+  output <- predict(smoothFUN, x)
+
+  return(output$y)
 }
 
 .getCoordsAxes <- function(coord, what){
@@ -66,8 +93,6 @@
   return(output)
 }
 
-#' Function that makes an IDW interpolation using sp and gstat tools
-#' @importFrom gstat idw
 .interpIDW <- function(myData, XYZnames = c("x", "y", "z"), myGrid = NULL, ...){
 
   myData <- data.frame(x = myData[,XYZnames[1]],
@@ -97,6 +122,43 @@
   return(output)
 }
 
+# Abbreviated functions
 .ac <- as.character
 .an <- as.numeric
 .anc <- function(...) as.numeric(as.character(...))
+
+# Welcome message
+.onAttach <- function(...) {
+
+  packageStartupMessage("
+'oXim': Tools for read Echopen outputs and get oxycline limits from echogram data.
+https://cran.r-project.org/web/packages/oXim/index.html\n
+'Echopen': toolbox for the multifrequency analysis of fisheries acoustics data.
+http://www.france-nord.ird.fr/les-ressources/outils-informatiques\n")
+
+  return(invisible())
+}
+
+# Get limits from cumulative sum anc
+getLimits <- function(x, probs){
+
+  x[is.na(x)] <- 0
+  x <- cumsum(x)/sum(x)
+  x <- cut(x = x, breaks = c(-Inf, probs, Inf), labels = c(-1, rep(0, length(probs) - 1), 1))
+  x <- !abs(.anc(x))
+
+  return(x)
+}
+
+getStartFinish <- function(x, values){
+
+  x <- which(x)
+
+  if(length(x) < 1){
+    output <- c(1, 1)
+  }else{
+    output <- values[range(x)]
+  }
+
+  return(output)
+}

@@ -27,7 +27,8 @@ This function allows to create correctly a filter-settings object in order to in
 About each parameter:
 \describe{
 \item{\strong{name}}{This parameter must be a string and it works as a short way to select an specific set of filter
-settings. (It will be fully available in next version.)}
+settings. This parameter has priority over the others, so to create a personalized set of filters, `name` will must
+set as \code{NULL}. (It will be fully available in next version.)}
 \item{\strong{type}}{This parameter must be a string and indicates what kind of filter method will be applied to the
 echigrams. There are two options to select: \code{.definerFilter} which works as a reverse-effect median filter
 and \code{.noiselessFilter} which removes  noisy signals on the echograms.}

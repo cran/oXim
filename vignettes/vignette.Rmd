@@ -19,7 +19,7 @@ library(oXim)
 
 This package is built to take echogram data from Echopen software outputs and calculate oxycline depth limits using image-filtering algoriths.
 
-Algoriths used by `oXim` include median-filter and 2D-convolution based algoriths implemented on Rcpp (C++) because the applicaion of this filters to echograms is very intensive and time expensive due to the size of echograms. `oXim` allows to change some parameters for filtering routines using an easily format (a table, `data.frame` object).
+`oXim` uses `imagine` algorithms, which includes median-filter and 2D-convolution implemented on Rcpp (C++) because the applicaion of this filters to echograms is very intensive and time expensive due to the size of echograms. `oXim` allows to change some parameters for filtering routines using an easily format (a table, `data.frame` object).
 
 An echogram can be described as a visual representation of an acoustic variable, usually refered to the backscattering energy received after the emision of sound pulse to the water. Actualy, there are many softwares oriented to explore and analyze echogram data from echosounders as Echoview. One of them is Echopen, which was developed by IRD people under a Matlab environment and include libraries and routines for reading, integrate and cleaning databases from multibeam echosounders. `oXim` requires Echopen outputs as inputs for work. 
 

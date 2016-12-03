@@ -1,117 +1,17 @@
-# ordfiltInR <- function(data, x, weightedMatrix){
-#   newData <- data
-#
-#   # Corner UpLeft
-#   i <- 1
-#   j <- 1
-#   miniData <- data[(i):(i + 2), (j):(j + 2)] * weightedMatrix
-#   newData[i, j] <- miniData[order(miniData)[x]]
-#
-#   # Corner DownLeft
-#   i <- nrow(data)
-#   j <- 1
-#   miniData <- data[(i):(i - 2), (j):(j + 2)] * weightedMatrix
-#   newData[i, j] <- miniData[order(miniData)[x]]
-#
-#   # Corner UpRight
-#   i <- 1
-#   j <- ncol(data)
-#   miniData <- data[(i):(i + 2), (j):(j - 2)] * weightedMatrix
-#   newData[i, j] <- miniData[order(miniData)[x]]
-#
-#   # Corner DownRight
-#   i <- nrow(data)
-#   j <- ncol(data)
-#   miniData <- data[(i):(i - 2), (j):(j - 2)] * weightedMatrix
-#   newData[i, j] <- miniData[order(miniData)[x]]
-#
-#
-#   # Downside
-#   i <- nrow(data):(nrow(data) - 2)
-#   for(j in seq(from = 2, to = ncol(data) - 1)){
-#     miniData <- data[i, (j - 1):(j + 1)] * weightedMatrix
-#     newData[i, (j - 1):(j + 1)] <- miniData[order(miniData)[x]]
-#   }
-#
-#   # Leftside
-#   j <- 1:3
-#   for(i in seq(from = 2, to = nrow(data) - 1)){
-#     miniData <- data[(i - 1):(i + 1), j] * weightedMatrix
-#     newData[(i - 1):(i + 1), j] <- miniData[order(miniData)[x]]
-#   }
-#
-#   # Upside
-#   i <- 1:3
-#   for(j in seq(from = 2, to = ncol(data) - 1)){
-#     miniData <- data[i, (j - 1):(j + 1)] * weightedMatrix
-#     newData[i, (j - 1):(j + 1)] <- miniData[order(miniData)[x]]
-#   }
-#
-#   # Rightside
-#   j <- ncol(data):(ncol(data) - 2)
-#   for(i in seq(from = 2, to = nrow(data) - 1)){
-#     miniData <- data[(i - 1):(i + 1), j] * weightedMatrix
-#     newData[(i - 1):(i + 1), j] <- miniData[order(miniData)[x]]
-#   }
-#
-#   # No borders
-#   for(j in seq(from = 2, to = ncol(data) - 1)){
-#     for(i in seq(from = 2, to = nrow(data) - 1)){
-#       miniData <- data[(i - 1):(i + 1), (j - 1):(j + 1)]
-#
-#       if(sum(!is.na(miniData), na.rm = TRUE) == 0)
-#         next
-#
-#       newData[i, j] <- miniData[order(miniData * weightedMatrix)[x]]
-#     }
-#   }
-#
-#   return(newData)
-# }
-
-.ordfilt2_C <- function(data, x, weightedMatrix){
-
-  # Error messages
-  if(mode(data) != "numeric" | mode(weightedMatrix) != "numeric")
-    stop("Incorrect mode of data or weightedMatrix (both must be 'numeric').")
-
-  # No borders
-  miniData <- ordfiltInC(data = data, x = x, weightedMatrix = weightedMatrix)
-
-  return(miniData)
-}
-
 # Filter that removes (converts to NaN) isolated pixels
 .noiselessFilter <- function(matrixData, radius, times, tolerance){
   radius <- .an(radius)
   times <- .an(times)
   tolerance <- .an(tolerance)
 
-  # Get range of values
-  rangeValues <- range(matrixData, na.rm = TRUE)
-
-  # Convert NA to -999
-  matrixData[is.na(matrixData)] <- -999
-
-  # Get weighted Matrix
+  # Get weighted Matrix (kernel)
   weightedMatrix <- diag(radius) + diag(radius)[,radius:1]
   constant1 <- ceiling(radius/2)
   weightedMatrix[constant1,] <- 1
 
-  constant2 <- ceiling(sum(weightedMatrix)*tolerance)
-
-  if(constant2 - 1 < 0)
-    stop("Incorrect value for tolerance.")
-
-  finalData <- matrixData
-  for(i in 1:times){
-    finalData <- .ordfilt2_C(data = finalData,
-                             x = constant2,
-                             weightedMatrix = weightedMatrix)
-  }
-
-
-  finalData[finalData < rangeValues[1] | finalData == 0] <- NA
+  # Apply filters
+  finalData <- convolutionQuantile(dataMatrix = matrixData, kernel = weightedMatrix,
+                                   x = tolerance, times = times)
 
   return(finalData)
 }
@@ -120,28 +20,16 @@
 .definerFilter <- function(matrixData, radius, times){
   radius <- .an(radius)
   times <- .an(times)
+  tolerance <- 1
 
-  # Get range of values
-  rangeValues <- range(matrixData, na.rm = TRUE)
-
-  # Convert NA to 999
-  matrixData[is.na(matrixData)] <- 999
-
-  # Get weighted Matrix
+  # Get weighted Matrix (kernel)
   weightedMatrix <- diag(radius) + diag(radius)[,radius:1]
   constant1 <- ceiling(radius/2)
   weightedMatrix[constant1,] <- 1
 
-  constant2 <- 1
-
-  finalData <- matrixData
-  for(i in 1:times){
-    finalData <- .ordfilt2_C(data = finalData,
-                             x = constant2,
-                             weightedMatrix = weightedMatrix)
-  }
-
-  finalData[finalData > rangeValues[2]] <- NA
+  # Apply filters
+  finalData <- convolutionQuantile(dataMatrix = matrixData, kernel = weightedMatrix,
+                                   x = tolerance, times = times)
 
   return(finalData)
 }
@@ -184,51 +72,54 @@
   return(outputList)
 }
 
-.getOxyrange <- function(oxyclineData, oxyDims){
+.getOxyrange <- function(oxyclineData, oxyDims, ...){
+
+  # Define lower and upper limits c(Upper, Lower, Limit)
+  if(is.null(list(...)$lineLimits)){
+    lineLimits <- c(0.2, 0.99, 0.5)
+  }else{
+    lineLimits <- list(...)$lineLimits
+  }
 
   allLimits <- list()
   for(i in seq_along(oxyclineData)){
     # Select the final matrix of each echogram and dims
-    tempEchogram <- oxyclineData[[i]]$finalEchogram
-    tempDims <- oxyDims[[i]]
+    tempEchogram <- -oxyclineData[[i]]$finalEchogram
+    originalMatrix <- -oxyclineData[[i]]$original
 
-    # Define lower and upper limits
-    lineLimits <- c(0.10, 0.98)
+    # Replace NA with zeros
+    tempEchogram[is.na(tempEchogram)] <- 0
+    originalMatrix[is.na(originalMatrix)] <- 0
 
-    # Get matrix where values of tempEchogram are lower than zero
-    dataEchogram <- drop(outer(tempEchogram, 0, "<"))
-    dataEchogram[is.na(dataEchogram)] <- 0
+    # Extract original values from filtered matrix
+    cumsumMatrix <- apply(tempEchogram, 2, function(x) cumsum(x)/sum(x))
+    cumsumMatrix <- apply(cumsumMatrix, 2, findInterval, vec = c(-Inf, lineLimits[1:2], Inf))
+    originalMatrix[cumsumMatrix != 2] <- 0
 
-    # What columns has, at least, one value for getting oxycline range
-    index <- which(colSums(dataEchogram) > 0)
+    # Extract oxycline limits
+    cumsumMatrix <- apply(originalMatrix, 2, function(x) cumsum(x)/sum(x))
+    cumsumMatrix <- apply(cumsumMatrix, 2, findInterval, vec = c(-Inf, lineLimits[3], Inf))
 
-    # Get sums by column
-    sumByCol <- apply(dataEchogram, 2, sum)
+    limitsData <- rep(NA, ncol(cumsumMatrix))
 
-    lineLimits <- ceiling(sapply(lineLimits, "*", sumByCol))
+    index <- colSums(cumsumMatrix, na.rm = TRUE) > 0
+    limitsData[index] <- apply(cumsumMatrix[,index], 2, function(x) na.omit(which(!duplicated(x))))[2,]
+    limitsData[index] <- sapply(limitsData[index], function(x, depths) depths[x],
+                                depths = .an(rownames(tempEchogram)))
 
-    dataEchogram <- apply(dataEchogram, 2, cumsum)
+    # Make smoothing
+    limitsData <- smoothVector(limitsData, spar = ifelse(is.null(list(...)$spar), 0.1, list(...)$spar))
+    # limitsData <- movingAverage(x = limitsData, n = 20)
 
-    # Set empty matrix for recording range values
-    limitsData <- matrix(NA, nrow = ncol(tempEchogram), ncol = 4)
-    dimnames(limitsData) <- list(colnames(tempEchogram),
-                                 c("lower_limit", "upper_limit", "lon", "lat"))
-    for(j in index){
-      # Get vector with cumsum values by depth
-      limitIndex <- !duplicated(dataEchogram[,j])
-      limitVector <- dataEchogram[limitIndex, j]
-
-      # Select and save limit values
-      limitIndex <- match(as.numeric(lineLimits[j,]), limitVector)
-      limitsData[j, c(1, 2)] <- .an(names(limitVector)[limitIndex])
-      # c(, tempDims$lon[j], tempDims$lat[j])
-    }
-
-    limitsData[,c(3, 4)] <- cbind(tempDims$lon, tempDims$lat)
+    # Reorganize info
+    limitsData <- data.frame(lon = oxyDims[[i]]$lon,
+                             lat = oxyDims[[i]]$lat,
+                             oxycline_limit = limitsData,
+                             stringsAsFactors = FALSE)
+    rownames(limitsData) <- colnames(tempEchogram)
 
     # Compile values on a list
-    output <- as.data.frame(limitsData, stringsAsFactors = FALSE)
-    allLimits[[i]] <- output[complete.cases(output[,c("lon", "lat")]),]
+    allLimits[[i]] <- limitsData
   }
 
   names(allLimits) <- names(oxyclineData)
@@ -252,122 +143,23 @@
   return(allDims)
 }
 
-# Takes outputs from Echopen and generates a matrix to calculate Oxycline
-# .getEchoData <- function(directory, validFish38, validBlue38, upLimitFluid120, pinInterval,
-#                          date.format){
-#
-#   # Define ttext pattern of databases
-#   pattern_Fish38  <- "_2Freq_Fish38.mat"
-#   # pattern_Fluid38 <- "_2Freq_Fluid38.mat"
-#   pattern_Blue38  <- "_2Freq_Blue38.mat"
-#
-#   # pattern_Fish120   <- "_2Freq_Fish120.mat"
-#   pattern_Fluid120  <- "_2Freq_Fluid120.mat"
-#   # pattern_Blue120   <- "_2Freq_Blue120.mat"
-#
-#   # Generate file list with text patterns
-#   listFiles_Fish <- list.files(path = directory, pattern = pattern_Fish38,
-#                                full.names = TRUE, recursive = TRUE)
-#   listFiles_Fluid <- list.files(path = directory, pattern = pattern_Fluid120,
-#                                 full.names = TRUE, recursive = TRUE)
-#   listFiles_Blue <- list.files(path = directory, pattern = pattern_Blue38,
-#                                full.names = TRUE, recursive = TRUE)
-#
-#   # Read files and concatenate in one matrix
-#   allData <- allTime <- allLon <- allLat <- NULL
-#   for(i in seq_along(listFiles_Fish)){
-#     tempList_Fish <- readMat(listFiles_Fish[i])
-#     tempList_Fluid <- readMat(listFiles_Fluid[i])
-#     tempList_Blue <- readMat(listFiles_Blue[i])
-#
-#     tempData_Fish <- tempList_Fish$Data.values
-#     tempData_Fluid <- tempList_Fluid$Data.values
-#     tempData_Blue <- tempList_Blue$Data.values
-#
-#     if(i == 1)
-#       depth <- as.numeric(tempList_Fluid$depth)
-#
-#     tempTime <- paste(as.character(tempList_Fluid$Ping.date),
-#                       as.character(tempList_Fluid$Ping.time))
-#     tempLon <- tempList_Fluid$Longitude
-#     tempLat <- tempList_Fluid$Latitude
-#     rm(list = c("tempList_Fish", "tempList_Fluid", "tempList_Blue"))
-#
-#     # Clear data using limit parameters
-#     tempData_Fish[tempData_Fish < -998 | tempData_Fish < validFish38[1] |
-#                     tempData_Fish > validFish38[2]] <- NaN
-#     tempData_Blue[tempData_Blue < -998 | tempData_Blue < validBlue38[1] |
-#                     tempData_Blue > validBlue38[2]] <- NaN
-#     tempData_Fluid[tempData_Fluid < -998 | tempData_Fluid > upLimitFluid120] <- NaN
-#
-#     # Clear main data (Fluid-like) using Fish and Blue noise data
-#     tempData <- tempData_Fluid*(is.na(tempData_Blue) & is.na(tempData_Fish))
-#     tempData[tempData == 0] <- NaN
-#
-#     allLon <- c(allLon, tempLon)
-#     allLat <- c(allLat, tempLat)
-#     allTime <- c(allTime, tempTime)
-#     allData <- cbind(allData, t(tempData))
-#   }
-#
-#   # Convert time
-#   allTime <- strptime(allTime, format = date.format)
-#
-#   if(sum(is.na(allTime)) > 0)
-#     stop("Incorrect value for 'date.format'.")
-#
-#   # Get points where the difference between two pin is larger than pinInterval (sec)
-#   breakPoints <- which(as.numeric(diff(allTime)) > pinInterval)
-#   breakPoints <- if(is.null(dim(breakPoints)) && length(breakPoints) > 1)
-#     c(0, dim(allData)[2]) else
-#       c(0, breakPoints, dim(allData)[2])
-#
-#   # Split big matrix by breakpoints to get matrix of echograms
-#   data <- list()
-#   for(i in seq(2, length(breakPoints))){
-#     tempEchogram <- list()
-#
-#     index <- seq(breakPoints[i - 1] + 1, breakPoints[i])
-#
-#     tempMatrix <- allData[,index]
-#     tempTimes <- allTime[index]
-#     tempLon <- allLon[index]
-#     tempLat <- allLat[index]
-#
-#     colnames(tempMatrix) <- as.character(tempTimes)
-#     rownames(tempMatrix) <- round(depth, 2)
-#
-#     tempEchogram[[1]] <- tempMatrix
-#     tempEchogram[[2]] <- list(depth = depth,
-#                               time = tempTimes,
-#                               lon = tempLon,
-#                               lat = tempLat)
-#
-#     names(tempEchogram) <- c("echogram", "dimnames")
-#
-#     data[[i - 1]] <- tempEchogram
-#   }
-#
-#   names(data) <- paste0("matrix_", seq_along(breakPoints[-1]))
-#
-#   output <- list(info = list(parameters = list(validFish38 = validFish38,
-#                                                validBlue38 = validBlue38,
-#                                                upLimitFluid120 = upLimitFluid120),
-#                              n_echograms = length(breakPoints) - 1),
-#                  data = data)
-#
-#   return(output)
-# }
-
 .getEchoData <- function(fileMode, directoryMode,
                          validFish38, validBlue38, upLimitFluid120,
                          pinInterval, date.format){
+
+  # dayHours <- c("06:30", "17:30")
+  # nightHours <- c("19:30", "04:50")
 
   if(is.null(fileMode) & is.null(directoryMode)){
     stop("At least whether fileMode or directoryMode must not be NULL.")
   }
 
   if(!is.null(fileMode)){
+
+    # Check if files exist or not
+    if(all(!sapply(fileMode, file.exists))){
+      stop("Some given files do not exist.")
+    }
 
     # Read Matlab files (.m)
     fish38_matrix <- readMat(fileMode$fish38_file)
@@ -407,14 +199,10 @@
 
     directory <- directoryMode$directory
 
-    # Define ttext pattern of databases
+    # Define text pattern of data bases
     pattern_Fish38  <- directoryMode$fish38_pattern
-    # pattern_Fluid38 <- "_2Freq_Fluid38.mat"
     pattern_Blue38  <- directoryMode$blue38_pattern
-
-    # pattern_Fish120   <- "_2Freq_Fish120.mat"
     pattern_Fluid120  <- directoryMode$fluid120_pattern
-    # pattern_Blue120   <- "_2Freq_Blue120.mat"
 
     # Generate file list with text patterns
     listFiles_Fish <- list.files(path = directory, pattern = pattern_Fish38,
@@ -548,16 +336,6 @@
        tick = FALSE, cex.axis = cex.axis)
 
   box()
-
-  return(invisible())
-}
-
-.lineOxyrangePlot <- function(oxyrange, ...){
-  xAxis <- as.POSIXct(rownames(oxyrange))
-
-  # Add lower and upper limits of oxycline
-  lines(.an(xAxis), oxyrange[,1], ...)
-  lines(.an(xAxis), oxyrange[,2], ...)
 
   return(invisible())
 }

@@ -13,11 +13,11 @@ readEchograms(fileMode = NULL, directoryMode = NULL, validFish38 = c(-100,
 
 \item{directoryMode}{List with needed variables to read Matlab files from directory. See details below.}
 
-\item{validFish38}{Range of valid values for Fish-38kHz}
+\item{validFish38}{Range of valid values for Fish-38kHz.}
 
-\item{validBlue38}{Range of valid values for Blue-38kHz}
+\item{validBlue38}{Range of valid values for Blue-38kHz.}
 
-\item{upLimitFluid120}{Upper limit for Fluidlike-120kHz}
+\item{upLimitFluid120}{Upper limit for Fluidlike-120kHz.}
 
 \item{pinInterval}{Time threshold (in secs) to consider separate two matrices (echograms).}
 
@@ -28,9 +28,13 @@ This function search outputs of Echoopen for Fluid-like, Blue noise
 and Fish and use them to make a filtered matrix to calculate the Oxycline limits.
 }
 \details{
-\code{fileMode} must be a list contains filenames for Fish38, Fluid120 and Bluelike38.
-For \code{directoryMode}, it must be a list with a directory with Fish38, Fluid120 and Bluelike38
-files in order to group and build final echograms.
+\code{fileMode} must be a \code{list} with the next structure: \code{fish38_file} (directory for fish38 file),
+\code{blue38_file} (directory for blue38 file) and \code{fluid120_file} (directory for fluid120 file).
+
+Similarly, \code{directoryMode} must be a \code{list} with the next structure: \code{directory} (folder
+where the files are storaged), \code{fish38_pattern} (text pattern for recognizing fish38 files),
+\code{blue38_pattern} (text pattern for recognizing blue38 files) and \code{fluid120_pattern}
+(text pattern for recognizing fluid120 files).
 }
 \examples{
 fileMode <- list(fish38_file   = system.file("extdata", "fish38.mat", package = "oXim"),

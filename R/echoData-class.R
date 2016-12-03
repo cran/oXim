@@ -108,7 +108,7 @@ print.summary.echoData <- function(x, ...){
 #' showing oxycline depth along shore.
 #'
 #' @param x \code{echoData} object provided by \code{readEchograms} function.
-#' @param ... Arguments passed from \code{plot} function.
+#' @param ... Arguments passed to \code{\link{echogramPlot}} function.
 #'
 #' @export
 #' @method plot echoData
@@ -118,7 +118,32 @@ plot.echoData <- function(x, ...){
 
     main <- paste("Echogram", i)
 
-    echogramPlot(echogramOutput = x$data[[i]]$echogram, main = main, ...)
+    echogramPlot.default(x = x$data[[i]]$echogram, main = main, ...)
+
+    if(i < length(x$data)){
+      readline(prompt = "Hit <enter> to see next echogram:")
+    }
+  }
+
+  return(invisible())
+}
+
+#' @title echogramPlot method for echoData
+#'
+#' @description This method takes an \code{echoData} object and plots output echograms.
+#'
+#' @param x Object of class \code{echoData}
+#' @param ... Extra arguments passed to \code{\link{echogramPlot}} function.
+#'
+#' @export
+#' @method echogramPlot echoData
+echogramPlot.echoData <- function(x, ...){
+
+  for(i in seq_along(x$data)){
+
+    main <- paste("Echogram", i)
+
+    echogramPlot.default(x = x$data[[i]]$echogram, main = main, ...)
 
     if(i < length(x$data)){
       readline(prompt = "Hit <enter> to see next echogram:")

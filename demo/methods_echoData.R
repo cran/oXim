@@ -1,6 +1,4 @@
 
-# Methods echoData -------------------------------------------------------------
-
 # Set directories where the Echopen's outputs are located
 fileMode <- list(fish38_file   = system.file("extdata", "fish38.mat", package = "oXim"),
                  fluid120_file = system.file("extdata", "fluid120.mat", package = "oXim"),
@@ -21,3 +19,6 @@ print(summaryEchodata)
 
 # Plot method
 plot(echoData)
+
+# echogramPlot method
+echogramPlot(echoData)

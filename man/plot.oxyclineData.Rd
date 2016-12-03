@@ -5,7 +5,7 @@
 \title{Plot method for oxyclineData}
 \usage{
 \method{plot}{oxyclineData}(x, interpParams = list(myGrid = NULL),
-  xlengthAxes = 6, ylengthAxes = 6, ...)
+  xlengthAxes = 6, ylengthAxes = 6, showLimits = FALSE, ...)
 }
 \arguments{
 \item{x}{Object of class \code{oxyclineData}}
@@ -15,6 +15,8 @@
 \item{xlengthAxes}{Desired length of the axis 'x' labels.}
 
 \item{ylengthAxes}{Desired length of the axis 'y' labels.}
+
+\item{showLimits}{\code{logical}. Do you want to show the oxycline limit line?}
 
 \item{...}{Extra arguments passed to \code{\link{image}} function.}
 }
