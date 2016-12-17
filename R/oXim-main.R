@@ -171,7 +171,7 @@ createFilterSetting <- function(name = "default", type = NULL, radius = NULL, ti
     }
 
     # Chaeck name
-    if(!is.element(sort(unique(type)), c(".definerFilter", ".noiselessFilter")))
+    if(!any(is.element(sort(unique(type)), c(".definerFilter", ".noiselessFilter"))))
       stop("Problem with 'filterSettings'. There is, at least, one wrong value on 'type' column.")
 
     # Check radius

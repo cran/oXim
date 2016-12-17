@@ -1,18 +1,14 @@
 .checkFilterSettings <- function(filterSettings){
   defaultFilterSettings <- get("defaultFilterSettings")
 
-  if(is.null(filterSettings)){
+  if(is.null(filterSettings) | (is.vector(filterSettings) && is.character(filterSettings) && length(filterSettings) == 1)){
     message("Message: \nNo filter-setting object or file detected. OXim will use default filter configuration.")
     output <- defaultFilterSettings[tolower(defaultFilterSettings$name) == "default",]
-  }else if(is.vector(filterSettings) && is.character(filterSettings) && length(filterSettings) == 1){
-    if(!is.element(tolower(filterSettings), tolower(unique(defaultFilterSettings$name)))){
-      stop("Incorrect value for 'filterSettings'. Please define a set of filters using 'createFilterSetting' function.")
-    }
-
-    output <- defaultFilterSettings[tolower(defaultFilterSettings$name) == filterSettings,]
   }else if(is.data.frame(filterSettings) &&
            all(is.element(c("type", "radius", "times", "tolerance"), tolower(colnames(filterSettings))))){
     output <- filterSettings
+  }else{
+    stop("Incorrect value for 'filterSettings'. Please define a set of filters using 'createFilterSetting' function.")
   }
 
   # Check variables of fileter settings object
