@@ -14,4 +14,3 @@
 \description{
 Get summary information of echograms included on echodata Objects.
 }
-

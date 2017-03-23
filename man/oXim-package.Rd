@@ -2,8 +2,8 @@
 % Please edit documentation in R/oXim-main.R
 \docType{package}
 \name{oXim-package}
-\alias{oXim}
 \alias{oXim-package}
+\alias{oXim}
 \title{Oxycline Index from Matrix Echograms}
 \description{
 Tools for oxycline depth calculation from echogram matrices
@@ -15,4 +15,3 @@ Wencheng Lau-Medrano, \email{luis.laum@gmail.com}
 \keyword{echograms,}
 \keyword{image-filtering}
 \keyword{oxycline,}
-

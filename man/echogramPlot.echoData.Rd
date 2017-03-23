@@ -14,4 +14,3 @@
 \description{
 This method takes an \code{echoData} object and plots output echograms.
 }
-

@@ -51,7 +51,7 @@ readEchograms <- function(fileMode = NULL, directoryMode = NULL,
                           validFish38 = c(-100, -21), validBlue38 = c(-100, -56),
                           upLimitFluid120 = -53, pinInterval = 50, date.format = "%d-%m-%Y %H:%M:%S"){
 
-  echoData <- .getEchoData(fileMode = fileMode, directoryMode = directoryMode,
+  echoData <- getEchoData(fileMode = fileMode, directoryMode = directoryMode,
                            validFish38 = validFish38, validBlue38 = validBlue38, upLimitFluid120 = upLimitFluid120,
                            pinInterval = pinInterval, date.format = date.format)
 
@@ -67,10 +67,13 @@ readEchograms <- function(fileMode = NULL, directoryMode = NULL,
 #' @param filterSettings List with combination of filters.
 #' @param stepBYstep \code{logical}. If \code{FALSE} (default), returns just original and final echogram, otherwise each
 #' echogram (after applying filters one by one) will be returned.
-#' @param ... Not used
+#' @param ... Arguments passed to \code{\link{smooth.spline}} function. See Details.
 #'
 #' @details If \code{filterSettings = NULL}, oXim will use filter configuration present on \code{defaultFilterSettings}
 #' data set. For extra details about image filters, see \code{\link{createFilterSetting}} help.
+#'
+#' Application of filters may produce some gaps in the final matrix. In order to fill them, the function uses
+#' \code{\link{smooth.spline}} whose arguments can be passed using by \code{...}.
 #'
 #' @examples
 #' fileMode <- list(fish38_file   = system.file("extdata", "fish38.mat", package = "oXim"),
@@ -96,17 +99,18 @@ getOxyrange <- function(fluidMatrix, filterSettings = NULL, stepBYstep = FALSE, 
   filterSettings <- .checkFilterSettings(filterSettings)
 
   # Get dimensions (lon, lat, time) of outputs' matrix
-  oxyDims <- .getOxyDims(oxyclineData = fluidMatrix)
+  oxyDims <- getOxyDims(oxyclineData = fluidMatrix)
 
   # Fill outputs' matrix
   oxyclineData <- list()
   for(i in seq_along(fluidMatrix)){
-    oxyclineData[[i]] <- .getFilteredEchogram(fluidMatrix[[i]], filterSettings, stepBYstep)
+    oxyclineData[[i]] <- getFilteredEchogram(fluidMatrix = fluidMatrix[[i]], filterSettings = filterSettings,
+                                              stepBYstep = stepBYstep, ...)
   }
   names(oxyclineData) <- paste0("matrix_", seq_along(fluidMatrix))
 
   # Get ranges of depth of oxycline using the last matrix of each echogram
-  oxyRange <- .getOxyrange(oxyclineData = oxyclineData, oxyDims = oxyDims, ...)
+  oxyRange <- getOxyrange_int(oxyclineData = oxyclineData, oxyDims = oxyDims, ...)
 
   # Compile outputs on a list
   oxyclineData <- list(info = list(number_echograms = nEchograms,
@@ -133,7 +137,7 @@ getOxyrange <- function(fluidMatrix, filterSettings = NULL, stepBYstep = FALSE, 
 #' @param type Indicates type of filter to use. See details below.
 #' @param radius Indicates the size (on pixels) of sides of square used to apply the filters.
 #' @param times Indicates number of times to apply the filters.
-#' @param tolerance For \code{.noiselessFilter}, this parameter indicates proportion of pixels to consider from
+#' @param tolerance For \code{noiselessFilter}, this parameter indicates proportion of pixels to consider from
 #' filter matrix (radius x radius).
 #'
 #' @details About each parameter:
@@ -142,14 +146,14 @@ getOxyrange <- function(fluidMatrix, filterSettings = NULL, stepBYstep = FALSE, 
 #' settings. This parameter has priority over the others, so to create a personalized set of filters, `name` will must
 #' set as \code{NULL}. (It will be fully available in next version.)}
 #' \item{\strong{type}}{This parameter must be a string and indicates what kind of filter method will be applied to the
-#' echigrams. There are two options to select: \code{.definerFilter} which works as a reverse-effect median filter
-#' and \code{.noiselessFilter} which removes  noisy signals on the echograms.}
+#' echograms. There are two options to select: \code{definerFilter} which works as a reverse-effect median filter
+#' and \code{noiselessFilter} which removes  noisy signals on the echograms.}
 #' \item{\strong{radius}}{This parameter is useful to specify the size of the filter matrix which will be applied to
 #' the echogram. It must be integer, even and greater than 3.}
 #' \item{\strong{times}}{This parameter is useful to indicate how many times the filter will be applied to the echogram.
 #' It must be integer and greater than 1. The function will remove rows with \code{times=0} values.}
 #' \item{\strong{tolerance}}{Internal parameter to modify selected values on a convolution matrix filter. This parameter
-#' is meaningful only for \code{.noiselessFilter}.}
+#' is meaningful only for \code{noiselessFilter}.}
 #' }
 #'
 #' @examples
@@ -157,7 +161,7 @@ getOxyrange <- function(fluidMatrix, filterSettings = NULL, stepBYstep = FALSE, 
 #' createFilterSetting(name = "default")
 #'
 #' # Generate a personalized profile
-#' createFilterSetting(type = ".definerFilter", radius = c(3, 5, 5))
+#' createFilterSetting(type = "definerFilter", radius = c(3, 5, 5))
 createFilterSetting <- function(name = "default", type = NULL, radius = NULL, times = NULL, tolerance = NULL){
 
   defaultFilterSettings <- get("defaultFilterSettings")
@@ -171,7 +175,7 @@ createFilterSetting <- function(name = "default", type = NULL, radius = NULL, ti
     }
 
     # Chaeck name
-    if(!any(is.element(sort(unique(type)), c(".definerFilter", ".noiselessFilter"))))
+    if(!any(is.element(sort(unique(type)), c("definerFilter", "noiselessFilter"))))
       stop("Problem with 'filterSettings'. There is, at least, one wrong value on 'type' column.")
 
     # Check radius

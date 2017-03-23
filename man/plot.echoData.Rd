@@ -15,4 +15,3 @@
 This function takes an \code{echoData} object and plots an interpolated map
 showing oxycline depth along shore.
 }
-

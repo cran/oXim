@@ -13,7 +13,7 @@
 
   # Check variables of fileter settings object
   # Chaeck name
-  if(!all(is.element(sort(unique(output$type)), c(".definerFilter", ".noiselessFilter"))))
+  if(!all(is.element(sort(unique(output$type)), c("definerFilter", "noiselessFilter"))))
     stop("Problem with 'filterSettings'. There is, at least, one wrong value on 'type' column.")
 
   # Check radius
@@ -157,4 +157,19 @@ getStartFinish <- function(x, values){
   }
 
   return(output)
+}
+
+
+getWeightedMatrix <- function(radius){
+  constant1 <- ceiling(radius/2)
+  weightedMatrix <- matrix(data = 1, nrow = radius, ncol = radius)
+
+  for(i in 1:constant1){
+    index <- seq(i, radius - (i - 1))
+    weightedMatrix[i, index] <- 2
+  }
+
+  # weightedMatrix[,constant1] <- 2
+
+  return(weightedMatrix)
 }

@@ -44,4 +44,3 @@ echoData <- readEchograms(fileMode = fileMode)
 print(echoData)
 
 }
-

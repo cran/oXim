@@ -24,4 +24,3 @@
 This method takes an \code{oxyclineData} object, make an interpolation of oxycline
 values and show them on a map. Interpolation methodology is based on \code{akima} package.
 }
-

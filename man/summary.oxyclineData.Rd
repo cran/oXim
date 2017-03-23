@@ -14,4 +14,3 @@
 \description{
 Get summary information of oxycline depth limits included on \code{oxyclineData} objects.
 }
-

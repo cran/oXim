@@ -14,4 +14,3 @@
 \description{
 Shows main information from oxyclineData Objects.
 }
-

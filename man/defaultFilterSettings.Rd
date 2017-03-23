@@ -12,4 +12,3 @@ defaultFilterSettings
 \code{data.frame} object containig a settings used by \code{getOxyrange}
 function to apply echograms' matrix. It can be usefull as example of filter settings.
 }
-

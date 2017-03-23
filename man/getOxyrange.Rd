@@ -14,7 +14,7 @@ getOxyrange(fluidMatrix, filterSettings = NULL, stepBYstep = FALSE, ...)
 \item{stepBYstep}{\code{logical}. If \code{FALSE} (default), returns just original and final echogram, otherwise each
 echogram (after applying filters one by one) will be returned.}
 
-\item{...}{Not used}
+\item{...}{Arguments passed to \code{\link{smooth.spline}} function. See Details.}
 }
 \description{
 This function takes a filter configuration and applies to echograms given on an \code{echoData} object.
@@ -22,6 +22,9 @@ This function takes a filter configuration and applies to echograms given on an 
 \details{
 If \code{filterSettings = NULL}, oXim will use filter configuration present on \code{defaultFilterSettings}
 data set. For extra details about image filters, see \code{\link{createFilterSetting}} help.
+
+Application of filters may produce some gaps in the final matrix. In order to fill them, the function uses
+\code{\link{smooth.spline}} whose arguments can be passed using by \code{...}.
 }
 \examples{
 fileMode <- list(fish38_file   = system.file("extdata", "fish38.mat", package = "oXim"),
@@ -31,4 +34,3 @@ echoData <- readEchograms(fileMode = fileMode)
 oxyLimits <- getOxyrange(fluidMatrix = echoData)
 
 }
-

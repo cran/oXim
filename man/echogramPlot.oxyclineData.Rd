@@ -23,4 +23,3 @@ will use the same combination used on object \code{colPallete}.}
 This method takes an \code{oxyclineData} object and plots output echograms. Optionaly,
 users can add oxycline line.
 }
-

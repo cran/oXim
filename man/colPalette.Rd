@@ -14,4 +14,3 @@ Vector with 256 colors commonly used on echograms plots.
 \references{
 Boletines del Instituto del Mar del Peru.
 }
-
