@@ -8,8 +8,8 @@ noiselessFilter <- function(matrixData, radius, times, tolerance){
   weightedMatrix <- getWeightedMatrix(radius = radius)
 
   # Apply filters
-  finalData <- convolutionQuantile(dataMatrix = matrixData, kernel = weightedMatrix,
-                                   x = tolerance, times = times)
+  finalData <- convolutionQuantile(X = matrixData, kernel = weightedMatrix,
+                                   probs = tolerance, times = times)
 
   return(finalData)
 }
@@ -24,8 +24,8 @@ definerFilter <- function(matrixData, radius, times){
   weightedMatrix <- getWeightedMatrix(radius = radius)
 
   # Apply filters
-  finalData <- convolutionQuantile(dataMatrix = matrixData, kernel = weightedMatrix,
-                                   x = tolerance, times = times)
+  finalData <- convolutionQuantile(X = matrixData, kernel = weightedMatrix,
+                                   probs = tolerance, times = times)
 
   return(finalData)
 }
@@ -142,7 +142,7 @@ getOxyDims <- function(oxyclineData){
 
 getEchoData <- function(fileMode, directoryMode,
                          validFish38, validBlue38, upLimitFluid120,
-                         pinInterval, date.format){
+                         pinInterval, date.format, ...){
 
   # dayHours <- c("06:30", "17:30")
   # nightHours <- c("19:30", "04:50")
@@ -192,7 +192,13 @@ getEchoData <- function(fileMode, directoryMode,
     # allData[allData == 0] <- NaN
 
     # Make operations between matrices
-    operationType <- 1
+    if(is.null(list(...)$operationType)){
+      operationType <- 1
+    }else{
+      operationType <- list(...)$operationType
+    }
+
+    # operationType <- 1
     operationsInput <- list(fluid120_matrix = fluid120_matrix,
                             blue38_matrix = blue38_matrix,
                             fish38_matrix = fish38_matrix)
@@ -252,7 +258,13 @@ getEchoData <- function(fileMode, directoryMode,
       # tempData[tempData == 0] <- NaN
 
       # Make operations between matrices
-      operationType <- 1
+      if(is.null(list(...)$operationType)){
+        operationType <- 1
+      }else{
+        operationType <- list(...)$operationType
+      }
+
+      # operationType <- 1
       operationsInput <- list(fluid120_matrix = tempData_Fluid,
                               blue38_matrix = tempData_Blue,
                               fish38_matrix = tempData_Fish)

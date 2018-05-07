@@ -40,12 +40,25 @@ operationFunction_1 <- function(operationsInput){
     stop("'operationsInput' must be a list of echogram matrices.")
   }
 
+  output <- operationsInput$fluid120_matrix
+
   # Make operations
   for(i in seq_along(operationsInput)){
     operationsInput[[i]][is.na(operationsInput[[i]])] <- 0
   }
 
-  output <- with(operationsInput, ((fluid120_matrix*1e3) + (blue38_matrix*1e3) + fish38_matrix)/3)
+  index <- with(operationsInput, ((fluid120_matrix*1e3) + (blue38_matrix*1e3) + fish38_matrix)/3)
+
+  output[index >= 0] <- NA
+
+  return(output)
+}
+
+operationFunction_2 <- function(operationsInput){
+
+  output <- with(operationsInput, fluid120_matrix*(is.na(blue38_matrix) & is.na(fish38_matrix)))
+
+  output[output == 0] <- NaN
 
   return(output)
 }

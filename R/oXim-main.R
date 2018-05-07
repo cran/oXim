@@ -30,6 +30,7 @@ NULL
 #' @param upLimitFluid120 Upper limit for Fluidlike-120kHz.
 #' @param pinInterval Time threshold (in secs) to consider separate two matrices (echograms).
 #' @param date.format A character string. The default method is \code{\%Y-\%m-\%d \%H:\%M:\%S}.
+#' @param ... Extra arguments (not used for now).
 #'
 #' @details \code{fileMode} must be a \code{list} with the next structure: \code{fish38_file} (directory for fish38 file),
 #' \code{blue38_file} (directory for blue38 file) and \code{fluid120_file} (directory for fluid120 file).
@@ -49,11 +50,11 @@ NULL
 #' @export
 readEchograms <- function(fileMode = NULL, directoryMode = NULL,
                           validFish38 = c(-100, -21), validBlue38 = c(-100, -56),
-                          upLimitFluid120 = -53, pinInterval = 50, date.format = "%d-%m-%Y %H:%M:%S"){
+                          upLimitFluid120 = -53, pinInterval = 50, date.format = "%d-%m-%Y %H:%M:%S", ...){
 
   echoData <- getEchoData(fileMode = fileMode, directoryMode = directoryMode,
                            validFish38 = validFish38, validBlue38 = validBlue38, upLimitFluid120 = upLimitFluid120,
-                           pinInterval = pinInterval, date.format = date.format)
+                           pinInterval = pinInterval, date.format = date.format, ...)
 
   class(echoData) <- "echoData"
 

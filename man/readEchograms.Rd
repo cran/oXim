@@ -6,7 +6,7 @@
 \usage{
 readEchograms(fileMode = NULL, directoryMode = NULL, validFish38 = c(-100,
   -21), validBlue38 = c(-100, -56), upLimitFluid120 = -53,
-  pinInterval = 50, date.format = "\%d-\%m-\%Y \%H:\%M:\%S")
+  pinInterval = 50, date.format = "\%d-\%m-\%Y \%H:\%M:\%S", ...)
 }
 \arguments{
 \item{fileMode}{List with needed variables to read single Matlab files. See details below.}
@@ -22,6 +22,8 @@ readEchograms(fileMode = NULL, directoryMode = NULL, validFish38 = c(-100,
 \item{pinInterval}{Time threshold (in secs) to consider separate two matrices (echograms).}
 
 \item{date.format}{A character string. The default method is \code{\%Y-\%m-\%d \%H:\%M:\%S}.}
+
+\item{...}{Extra arguments (not used for now).}
 }
 \description{
 This function search outputs of Echoopen for Fluid-like, Blue noise

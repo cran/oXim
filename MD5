@@ -1,12 +1,12 @@
-c6ed5284f1160e1c1f9d8630d4170fbb *DESCRIPTION
+b8d7c28fa65a7c2addff7670fff256da *DESCRIPTION
 5dca32a5afb0ed063d063926e1dd9961 *NAMESPACE
 e8db034e1d90313fb72ddaf0b331ebcc *R/auxiliar.R
 a5c5ba155c71fbd5398a52f8cab26af0 *R/echoData-class.R
-35d644051e403d99516040685baa1d7f *R/oXim-internal.R
-61196147d671671f18f179b2c83f662e *R/oXim-main.R
+0adbb9816933b85a4ee4b75120985bb7 *R/oXim-internal.R
+8e3fe55e9a5fe3141eb992c157477d9f *R/oXim-main.R
 8ad66ba9a605433b1eb23011726fff0d *R/oxyclineData-class.R
-4e8fc8ab1629125c7e3d01065a29068c *R/oxyclineData-internal.R
-2754939cece3d92043e0c7f68f1d7a50 *build/vignette.rds
+fe7f5ed19944b49f9dce23a4ce9ef30c *R/oxyclineData-internal.R
+b3ee5d7e45569985f1f0beebc6131efd *build/vignette.rds
 164d70522eae9dd1428de87ca10cfa64 *data/colPalette.RData
 fc976452544fba7718ecad369e596f8c *data/defaultFilterSettings.RData
 c74c1b05ed8f3bca54b3917564de64f4 *demo/00Index
@@ -17,7 +17,7 @@ e33a1ec8915ea55ced1163dcb37ca606 *demo/methods_oxyclineData.R
 cf606be19f4562e4571c03fa7ca1177b *demo/read_echoData.R
 85cfc0dc11103d1cfb3fc9cad0882932 *inst/doc/vignette.R
 6e8e2dc6e410723d120cf497ae936eaf *inst/doc/vignette.Rmd
-88e17a8fd63b4d2411c56709f5c236c7 *inst/doc/vignette.html
+54fe1b77afe355dad10a0ae410e889b0 *inst/doc/vignette.html
 2ccf5918a4c6009c4ee33c0facf1c754 *inst/extdata/blue38.mat
 d0aa772a3fbf2692e38efd3a71ec0bb3 *inst/extdata/fish38.mat
 4a7a2b9b2cddd0f4d4a45e2652fde44d *inst/extdata/fluid120.mat
@@ -35,7 +35,7 @@ cfc13089008f54bf33974ca983aaa331 *man/plot.echoData.Rd
 7548156975c1c46cb8a9cadd4c200010 *man/print.oxyclineData.Rd
 d051961e4391bd64f7ecd33ca7c58718 *man/print.summary.echoData.Rd
 641526157a53765f009a0623cd489557 *man/print.summary.oxyclineData.Rd
-5baf6346d794ec436361481f28a157a6 *man/readEchograms.Rd
+da20434ee02d491d87353300d14832df *man/readEchograms.Rd
 34f51fa99a55040535763300fe559e5e *man/summary.echoData.Rd
 f0c984c39942a56052bb3949485a088c *man/summary.oxyclineData.Rd
 6e8e2dc6e410723d120cf497ae936eaf *vignettes/vignette.Rmd
@@ -47,4 +47,4 @@ ece260242bc006db326aaf04a00d2865 *vignettes/vignette_cache/html/unnamed-chunk-7_
 1a57070c9cf679d55ea55ba273f397c6 *vignettes/vignette_cache/html/unnamed-chunk-7_9f403fae10ff7304bad716657a27b4e7.rdb
 cdee61658c8b3014b283a71fc15bd46a *vignettes/vignette_cache/html/unnamed-chunk-7_9f403fae10ff7304bad716657a27b4e7.rdx
 18ade021dda2d6d99ad0a31cbc7e43d3 *vignettes/vignette_files/figure-html/unnamed-chunk-10-1.png
-4f72f64382a5c1b4548ecb56a636e016 *vignettes/vignette_files/figure-html/unnamed-chunk-6-1.png
+5ea12c4c0b7979f3da061a5ff1608e9d *vignettes/vignette_files/figure-html/unnamed-chunk-6-1.png
